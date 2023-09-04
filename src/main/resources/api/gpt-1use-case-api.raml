@@ -1,0 +1,27 @@
+#%RAML 1.0
+title: gpt-1use-case-api
+
+protocols: [HTTP]
+
+/restcountries:
+  get:
+    description: Fetch details about countries
+    queryParameters:
+      name?:
+        description: Name of the country
+        type: string
+      population?:
+        description: Population of the country
+        type: integer
+      totalNumber?:
+        description: Countries quantity information to be fetched
+        type: integer
+      order?:
+        description: Order of the countries to be fetched
+        enum: [ascend, descend]
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include response/getRestCountriesExample.json
+

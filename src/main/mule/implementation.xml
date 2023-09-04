@@ -1,0 +1,121 @@
+<!-- [STUDIO:"HTTP Listener"]<?xml version="1.0" encoding="UTF-8"?> [STUDIO] -->
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <flow name="implementation" doc:id="05c7a08c-dd60-4905-83b8-92d35f41234b">    
+
+        <logger level="INFO" doc:name="QueryParams Logger " doc:id="4817a5ad-15b5-4677-a340-ec83946b4124" message="#[&quot;Query Params: &quot; ++ &#10;                    &quot;Name: &quot; ++ (attributes.queryParams.'name' default &quot;&quot;) ++ &#10;                    &quot; Order: &quot; ++ (attributes.queryParams.'order' default &quot;&quot;) ++&#10;                    &quot; Population: &quot; ++ (attributes.queryParams.'population' default 0) ++&#10;                    &quot; TotalNumber: &quot; ++ (attributes.queryParams.'totalNumber' default 0)]"/>
+		<ee:transform doc:name="Store queryParams">
+            <ee:message>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="nameVar"><![CDATA[attributes.queryParams.'name' default ""]]></ee:set-variable>
+                <ee:set-variable variableName="orderVar"><![CDATA[attributes.queryParams.'order' default ""]]></ee:set-variable>
+                <ee:set-variable variableName="populationVar"><![CDATA[attributes.queryParams.'population' default 0]]></ee:set-variable>
+                <ee:set-variable variableName="totalNumberVar"><![CDATA[attributes.queryParams.'totalNumber' default 0]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>     
+        <http:request method="GET" path="/v3.1/all" doc:name="HTTP Request to `REST Countries` API" config-ref="HTTP_Request_configuration">
+            <http:response-validator>
+                <http:success-status-code-validator values="200..299" />
+            </http:response-validator>
+        </http:request>
+        <set-variable variableName="restCountries" value="#[payload]" doc:name="Set restCountries Variables" mimeType="application/json"/>
+        <choice doc:name="Choice">
+    <!-- If no query parameters are present -->
+    <when expression="#[vars.nameVar == '' and vars.orderVar == '' and vars.populationVar == 0 and vars.totalNumberVar == 0]">
+        <set-payload value="#[vars.restCountries]" doc:name="Set Payload to restCountries" mimeType="application/json"/>
+    </when>
+    
+    <!-- If name query parameter is present -->
+    <otherwise>
+        <ee:transform doc:name="Filter By Country Name &amp; population">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+fun countryName(countries, name) = 
+    if (name != "") 
+        countries filter (country) -> lower(country.name.common) contains lower(name)
+    else 
+        countries
+
+fun countryPopulation(countries, population) = 
+    if (population > 0)
+        countries filter (country) -> country.population < (population * 1000000)
+    else
+        countries
+
+---
+
+if (vars.nameVar != "" and vars.populationVar == 0)
+    countryName(payload, vars.nameVar)
+else if (vars.nameVar == "" and vars.populationVar > 0)
+    countryPopulation(payload, vars.populationVar)
+else if (vars.nameVar != "" and vars.populationVar > 0)
+    countryName(payload, vars.nameVar) filter (country) -> country.population < (vars.populationVar * 1000000)
+else
+    payload
+
+
+
+
+
+]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+				<ee:transform doc:name="Order Countries" doc:id="1fd18dac-f844-4d50-8da5-11b2135a9e43" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+fun countrySorting(countries, order) =
+    if (order == "ascend")
+        countries orderBy ((country) -> lower(country.name.common))
+    else if (order == "descend")
+        (countries orderBy ((country) -> lower(country.name.common)))[-1 to 0]
+    else
+        countries
+
+---
+
+countrySorting(payload, vars.orderVar)
+
+
+
+
+
+
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<ee:transform doc:name="Pagination Logic" doc:id="6a75edd2-a2d7-4fa6-a1d2-a7ae336153f5" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+import take from dw::core::Arrays
+
+output application/json
+
+fun countriesNumber(countries, totalNumber) =
+    if (totalNumber > 0)
+        countries take totalNumber
+    else 
+        countries
+
+---
+
+countriesNumber(payload, vars.totalNumberVar)
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+    
+</otherwise>
+</choice>
+    
+</flow>
+</mule>

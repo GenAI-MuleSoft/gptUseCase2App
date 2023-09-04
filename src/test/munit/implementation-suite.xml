@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="implementation-suite.xml" />
+	<munit:test name="implementation-test-no-functions" doc:id="7f5c61c6-ad74-4a30-bdf1-416599e18c3d">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="ceb3feb1-2a73-4413-a14e-66fc5e68110a" >
+				<munit:payload value="#[readUrl('classpath://implementationtestnofunctions\set-event_payload.dwl',&quot;application/dw&quot;,{onlyData: true})]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://implementationtestnofunctions\set-event_attributes.dwl',&quot;application/dw&quot;,{onlyData: true})]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://implementationtestnofunctions\set-event_variable_.dwl',&quot;application/dw&quot;,{onlyData: true})]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to implementation" doc:id="ca64e171-78fc-488d-ac4b-55c7f6788535" name="implementation"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="f74e4fb1-f513-4e7a-9ece-735dedd98447" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import implementationtestnofunctions::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-countryNameFun" doc:id="b4e438f7-e6cf-4eba-982c-26b59a7ea6d7">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="937cebcf-1d96-4796-9b60-512b83525467" >
+				<munit:payload value="#[readUrl('classpath://implementationtestcountryNameFun\set-event_payload.dwl', &quot;application/dw&quot;,{onlyData: true})]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://implementationtestcountryNameFun\set-event_attributes.dwl',&quot;application/dw&quot;,{onlyData: true})]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://implementationtestcountryNameFun\set-event_variable_.dwl',&quot;application/dw&quot;,{onlyData: true})]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to implementation" doc:id="9cbd8742-f1e1-42dd-a452-c67a3316b639" name="implementation"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="85527245-d1f3-4109-8c12-eaeb251889ae" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import implementationtestcountryNameFun::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-countryPopulationFun" doc:id="f06b8f04-e9af-4b15-aa39-4115445b8edc">
+		<munit:behavior >
+			<munit-tools:spy doc:name="Spy Filter By Country Name &amp; population" doc:id="e8e30c2b-d413-41d2-b4f3-92814af7a698" processor="ee:transform">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="49cebf4a-c4eb-4298-a522-e2897e429ed1" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="9675fb81-f849-4b2b-900d-0c6a4128c8bf" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import implementationtestcountryPopulationFun::spy_assert_payload
+---
+spy_assert_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:before-call>
+				<munit-tools:after-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="5625de7a-5b01-44bd-9428-77df97d4e2dc" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import implementationtestcountryPopulationFun::spy_assert_payload1
+---
+spy_assert_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:after-call>
+			</munit-tools:spy>
+			<munit:set-event doc:name="Set Input" doc:id="cc23c3bd-cef8-482f-a0a7-163ee89477d1" >
+				<munit:payload value="#[readUrl('classpath://implementationtestcountryPopulationFun\set-event_payload.dwl', &quot;application/dw&quot;,{onlyData: true})]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://implementationtestcountryPopulationFun\set-event_attributes.dwl',&quot;application/dw&quot;,{onlyData: true})]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://implementationtestcountryPopulationFun\set-event_variable_.dwl',&quot;application/dw&quot;,{onlyData: true})]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to implementation" doc:id="a11f743f-9007-4fe5-8cff-ff89d628a662" name="implementation"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="84654178-1143-441e-82c4-008f1c68fc0a" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import implementationtestcountryPopulationFun::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-countryNumberFun" doc:id="3ff2a099-dfa7-42a0-9636-7c0b1b4e5148">
+		<munit:behavior >
+			<munit-tools:spy doc:name="Spy Pagination Logic" doc:id="f2387ec5-01b9-4ef9-a54c-7fdf23ea8ac8" processor="ee:transform">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6a75edd2-a2d7-4fa6-a1d2-a7ae336153f5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="4bf26f9d-12af-4cd8-8ded-181f43abcbce" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import implementationtestCountrySortingFun::spy_assert_payload
+---
+spy_assert_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:before-call>
+				<munit-tools:after-call >
+					<munit-tools:assert doc:name="Assert payload" doc:id="bfdc8a47-5507-4956-817e-a2e239e6567a" message="The payload does not match">
+						<munit-tools:that ><![CDATA[#[%dw 2.0
+import implementationtestCountrySortingFun::spy_assert_payload1
+---
+spy_assert_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:after-call>
+			</munit-tools:spy>
+			<munit:set-event doc:name="Set Input" doc:id="fdd6771e-86a4-4ad5-a8fa-c627ee2454d2" >
+				<munit:payload value="#[readUrl('classpath://implementationtestCountrySortingFun\set-event_payload.dwl', &quot;application/dw&quot;,{onlyData: true})]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://implementationtestCountrySortingFun\set-event_attributes.dwl',&quot;application/dw&quot;,{onlyData: true})]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://implementationtestCountrySortingFun\set-event_variable_.dwl',&quot;application/dw&quot;,{onlyData: true})]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to implementation" doc:id="369a2c76-5c8e-4e42-9454-0e709c8cd763" name="implementation"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="f89a953e-80e4-4a3e-87b4-2ffe9ebc4d2e" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import implementationtestCountrySortingFun::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call doc:name="Verify Pagination Logic" doc:id="04cfddbd-2767-4581-a5f9-cc90a7d2e58f" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6a75edd2-a2d7-4fa6-a1d2-a7ae336153f5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

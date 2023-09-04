@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_05c7a08c_dd60_4905_83b8_92d35f41234b_Output_Variables_populationVar = Any
+
